@@ -14,53 +14,50 @@ def copy_to_clip(cidr):
     process.communicate(input="\n".join(cidr).encode('utf-8'))
 
 
-def get_ips(soup):
+def get_ips(ASN, v6=False):
+    ASN_URL = URL + ASN.strip()
+    page = requests.get(ASN_URL)
+    soup = BeautifulSoup(page.content, "lxml")
     ranges = []
+
     prefixes = soup.find("div", id="prefixes")
-    # prefixes6 = soup.find("div", id="prefixes6")
 
     if prefixes:
         for cidr in prefixes.tbody.find_all("a"):
             ranges.append(cidr.text)
             print(cidr.text)
 
-    # if prefixes6:
-    #     for cidr in prefixes6.tbody.find_all("a"):
-    #         ranges.append(cidr.text)
-    #         print(cidr.text)
+    if v6:
+        prefixes6 = soup.find("div", id="prefixes6")
+        if prefixes6:
+            for cidr in prefixes6.tbody.find_all("a"):
+                ranges.append(cidr.text)
+                print(cidr.text)
     
     return ranges
     
 
 def main():
     cidrs = []
-    if len(sys.argv) > 1:
-        parser = argparse.ArgumentParser(
-            description="ASN to IP range scraper from bgp.he.net"
-        )
-        parser.add_argument("-a", required=True, help="ASN")
-        args = parser.parse_args()
+    parser = argparse.ArgumentParser(
+        description="ASN to IP range scraper from bgp.he.net"
+    )
+    parser.add_argument("-a", type=str, help="ASN")
+    parser.add_argument("-v6", action="store_true", help="Include ipv6 ranges in output")
+    args = parser.parse_args()
 
-        ASN = args.a
-        ASN_URL = URL + ASN.strip()
-        page = requests.get(ASN_URL)
-
-        soup = BeautifulSoup(page.content, "lxml")
-
+    if args.a:
         try:
-            cidrs = get_ips(soup)
+            cidrs = get_ips(args.a, args.v6)
             copy_to_clip(cidrs)
         except:
             print("Error")
+    elif sys.stdin.isatty():
+        parser.print_help()
     else:
         for line in sys.stdin:
-            ASN_URL = URL + line.strip()
-            page = requests.get(ASN_URL)
-
-            soup = BeautifulSoup(page.content, "lxml")
-
             try:
-                cidrs = get_ips(soup)
+                cidrs = get_ips(line.strip())
                 copy_to_clip(cidrs)
             except:
                 print("Error")
