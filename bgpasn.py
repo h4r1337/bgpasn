@@ -17,17 +17,17 @@ def copy_to_clip(cidr):
 def get_ips(soup):
     ranges = []
     prefixes = soup.find("div", id="prefixes")
-    prefixes6 = soup.find("div", id="prefixes6")
+    # prefixes6 = soup.find("div", id="prefixes6")
 
     if prefixes:
         for cidr in prefixes.tbody.find_all("a"):
             ranges.append(cidr.text)
             print(cidr.text)
 
-    if prefixes6:
-        for cidr in prefixes6.tbody.find_all("a"):
-            ranges.append(cidr.text)
-            print(cidr.text)
+    # if prefixes6:
+    #     for cidr in prefixes6.tbody.find_all("a"):
+    #         ranges.append(cidr.text)
+    #         print(cidr.text)
     
     return ranges
     
