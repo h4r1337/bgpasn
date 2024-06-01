@@ -23,14 +23,16 @@ def get_ips(ASN, v6=False):
     prefixes = soup.find("div", id="prefixes")
 
     if prefixes:
-        for cidr in prefixes.tbody.find_all("a"):
+        prefixes_table = prefixes.find("table", id="table_prefixes4")
+        for cidr in prefixes_table.tbody.find_all("a"):
             ranges.append(cidr.text)
             print(cidr.text)
 
     if v6:
         prefixes6 = soup.find("div", id="prefixes6")
         if prefixes6:
-            for cidr in prefixes6.tbody.find_all("a"):
+            prefixes_table = prefixes6.find("table", id="table_prefixes6")
+            for cidr in prefixes_table.tbody.find_all("a"):
                 ranges.append(cidr.text)
                 print(cidr.text)
     
